@@ -1,0 +1,17 @@
+# Datadog Agent Helm 설정 (실습용 최소 구성)
+# 사용 전: kubectl create secret generic datadog-secret -n datadog --from-literal api-key=<API_KEY>
+datadog:
+  apiKeyExistingSecret: datadog-secret
+  site: datadoghq.com        # 가입한 Datadog 사이트에 맞게 변경 (예: ap1.datadoghq.com, us5.datadoghq.com)
+  clusterName: ops-practice
+  logs:
+    enabled: true
+    containerCollectAll: true
+  apm:
+    portEnabled: true        # 앱에서 ENABLE_DDTRACE=true로 켜면 트레이스 수집
+  processAgent:
+    enabled: true
+  kubelet:
+    tlsVerify: false         # kind(로컬) 환경에서 필요. EKS에서는 지워도 됨
+clusterAgent:
+  enabled: true

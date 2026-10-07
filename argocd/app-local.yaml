@@ -1,0 +1,20 @@
+# 로컬 kind 클러스터에 배포하는 ArgoCD Application
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: practice-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/sailchill/k8s-ops-practice.git
+    targetRevision: main
+    path: k8s/overlays/local
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: practice
+  # 처음에는 수동 Sync로 연습합니다. 자동 배포 실습 때 아래 주석을 풀어주세요.
+  # syncPolicy:
+  #   automated:
+  #     prune: true
+  #     selfHeal: true

@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: practice-app
+  namespace: practice
+  labels:
+    app: practice-app
+    tags.datadoghq.com/env: practice
+    tags.datadoghq.com/service: practice-app
+spec:
+  replicas: 2
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: practice-app
+  template:
+    metadata:
+      labels:
+        app: practice-app
+        tags.datadoghq.com/env: practice
+        tags.datadoghq.com/service: practice-app
+      annotations:
+        # Datadog이 컨테이너 로그를 수집할 때 서비스 이름을 붙이도록 지정
+        ad.datadoghq.com/app.logs: '[{"source":"python","service":"practice-app"}]'
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+      containers:
+        - name: app
+          image: practice-app   # 실제 이미지 이름과 태그는 overlay의 kustomization.yaml에서 지정
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: DD_ENV
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/env']
+            - name: DD_SERVICE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/service']
+            - name: DD_AGENT_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: ENABLE_DDTRACE
+              value: "false"   # Datadog 에이전트를 설치한 뒤 "true"로 바꾸면 APM 트레이스 수집
+            - name: DD_LOGS_INJECTION
+              value: "true"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi   # /chaos/memory 반복 호출 시 이 한도를 넘으면 OOMKilled
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 2

@@ -1,0 +1,11 @@
+# EKS용. ACCOUNT_ID를 본인 AWS 계정 번호(12자리)로 바꿔주세요.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+patches:
+  - path: service-lb-patch.yaml
+images:
+  - name: practice-app
+    newName: ACCOUNT_ID.dkr.ecr.ap-northeast-2.amazonaws.com/practice-app
+    newTag: "1.0.0"

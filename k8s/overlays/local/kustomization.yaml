@@ -1,0 +1,9 @@
+# 로컬 kind 클러스터용. 이미지는 scripts/kind_load.sh로 클러스터에 직접 넣어줍니다.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+images:
+  - name: practice-app
+    newName: practice-app
+    newTag: "1.0.0"   # 배포 실습: 이 숫자를 바꿔서 커밋하면 ArgoCD가 새 버전을 배포

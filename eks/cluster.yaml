@@ -1,0 +1,22 @@
+# eksctl 클러스터 설정 (서울 리전, 실습용 최소 구성)
+# 생성: eksctl create cluster -f eks/cluster.yaml   (약 15~20분)
+# 삭제: ./eks/cleanup.sh
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: ops-practice
+  region: ap-northeast-2
+iam:
+  withOIDC: true
+vpc:
+  nat:
+    gateway: Single          # NAT 게이트웨이 1개 (시간당 과금, 실습 후 꼭 삭제)
+managedNodeGroups:
+  - name: ng-1
+    instanceType: t3.medium
+    desiredCapacity: 2
+    minSize: 1
+    maxSize: 3
+    volumeSize: 20
+    labels:
+      role: practice
